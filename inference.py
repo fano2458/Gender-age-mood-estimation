@@ -36,17 +36,18 @@ def inference(frame,mtcnn,model,model_em,Genders,Moods):
 			age = int(predictions[0, 2])
 			emotion = torch.argmax(model_em(transform(face_cp,device))).cpu().numpy().item()
 
-			cv2.putText(frame, 'Gender: {}, Age: {}, Mood: {}'.format(['Male', 'Female'][gender], age, Moods[emotion]), (x1,y1), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255, 255, 255))
+			cv2.putText(frame, 'Gender: {}, Age: {}, Mood: {}'.format(['Male', 'Female'][gender], age, Moods[emotion]), (x1,y1), cv2.FONT_HERSHEY_COMPLEX, 0.5, (0, 255, 150))
 	frame = cv2.cvtColor(frame,cv2.COLOR_RGB2BGR)
 	return frame
 
 
-def photo_inference(device,mtcnn,model,model_em,Genders,Moods,opt):
+def photo_inference(device,mtcnn,model,model_em,Genders,Moods,opt,save):
 	im_path = vars(opt)['path']
 	image = cv2.imread(im_path)
 	
 	image = inference(image,mtcnn,model,model_em,Genders,Moods)
-
+	if save:
+		cv2.imwrite(r"C:\Users\fano\Desktop\im_new.png", image)
 	while True:
 		cv2.imshow('inference',image)
 		if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -90,6 +91,7 @@ def parse_opt():
 	parser = argparse.ArgumentParser()
 	parser.add_argument('--source', '-s', type=str, default='camera',help='camera or image')
 	parser.add_argument('--path', '-p', type=str, default=None, help='path to the image')
+	parser.add_argument('--save', '-sv', type=str, default=False, help='save image - true/false')
 	opt = parser.parse_args()
 	return opt
 
@@ -110,4 +112,4 @@ if __name__ == '__main__':
 	if vars(opt)['source'] == 'camera':
 		camera_inference(device,mtcnn,model,model_em,Genders,Moods,opt)
 	else:
-		photo_inference(device,mtcnn,model,model_em,Genders,Moods,opt)
+		photo_inference(device,mtcnn,model,model_em,Genders,Moods,opt,vars(opt)['save'])
