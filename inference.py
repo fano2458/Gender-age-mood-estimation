@@ -91,7 +91,7 @@ def parse_opt():
 	parser = argparse.ArgumentParser()
 	parser.add_argument('--source', '-s', type=str, default='camera',help='camera or image')
 	parser.add_argument('--path', '-p', type=str, default=None, help='path to the image')
-	parser.add_argument('--save', '-sv', type=str, default=False, help='save image - true/false')
+	parser.add_argument('--save', '-sv', type=bool, default=False, help='save image - true/false')
 	opt = parser.parse_args()
 	return opt
 
