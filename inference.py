@@ -36,7 +36,8 @@ def inference(frame,mtcnn,model,model_em,Genders,Moods):
 			age = int(predictions[0, 2])
 			emotion = torch.argmax(model_em(transform(face_cp,device))).cpu().numpy().item()
 
-			cv2.putText(frame, 'Gender: {}, Age: {}, Mood: {}'.format(['Male', 'Female'][gender], age, Moods[emotion]), (x1,y1), cv2.FONT_HERSHEY_COMPLEX, 0.5, (0, 255, 150))
+			cv2.rectangle(frame,(x1,y1),(x2,y2),(0,255,150),1)
+			cv2.putText(frame, 'Gender: {}, Age: {}, Mood: {}'.format(['Male', 'Female'][gender], age, Moods[emotion]), (x1,y1-10), cv2.FONT_HERSHEY_COMPLEX, 0.5, (0, 255, 150))
 	frame = cv2.cvtColor(frame,cv2.COLOR_RGB2BGR)
 	return frame
 
