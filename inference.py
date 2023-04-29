@@ -1,4 +1,6 @@
 # Example usage:
+# For image inference: python inference.py --source image --path "path to the image" --save False
+# For camera inference: python inference.py --source 0
 
 import numpy as np
 from facenet_pytorch import MTCNN
@@ -23,6 +25,7 @@ def inference(frame,mtcnn,model,model_em,Genders,Moods):
 	frame = cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
 	frame_BGR = frame.copy()
 	boxes, probs = mtcnn.detect(frame, landmarks=False)
+	preds = None
 	
 	if (probs.all() != None and probs.all() > 0.8):
 		for x1,y1,x2,y2 in boxes:
@@ -37,18 +40,19 @@ def inference(frame,mtcnn,model,model_em,Genders,Moods):
 			gender = int(np.argmax(predictions[0, :2]))
 			age = int(predictions[0, 2])
 			emotion = torch.argmax(model_em(transform(face_cp,device))).cpu().numpy().item()
-
+			preds = (['Male', 'Female'][gender], age, Moods[emotion])
 			cv2.rectangle(frame,(x1,y1),(x2,y2),(0,255,150),1)
 			cv2.putText(frame, 'Gender: {}, Age: {}, Mood: {}'.format(['Male', 'Female'][gender], age, Moods[emotion]), (x1,y1-10), cv2.FONT_HERSHEY_COMPLEX, 0.5, (0, 255, 150))
 	frame = cv2.cvtColor(frame,cv2.COLOR_RGB2BGR)
-	return frame
+	#print(preds)
+	return frame, preds
 
 
 def photo_inference(device,mtcnn,model,model_em,Genders,Moods,opt,save):
 	im_path = vars(opt)['path']
 	image = cv2.imread(im_path)
 	
-	image = inference(image,mtcnn,model,model_em,Genders,Moods)
+	image, _ = inference(image,mtcnn,model,model_em,Genders,Moods)
 	if save:
 		cv2.imwrite(r"C:\Users\fano\Desktop\im_new.png", image)
 	while True:
@@ -71,7 +75,7 @@ def camera_inference(device,mtcnn,model,model_em,Genders,Moods,opt):
 		if not ret:
 			break
 		
-		frame = inference(frame,mtcnn,model,model_em,Genders,Moods)
+		frame, predictions = inference(frame,mtcnn,model,model_em,Genders,Moods)
 
 		next_frame_time = time.time()
 		try:
@@ -83,8 +87,11 @@ def camera_inference(device,mtcnn,model,model_em,Genders,Moods,opt):
 		cv2.putText(frame, fps, (7,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (100, 255, 0), 1, cv2.LINE_AA)
 		cv2.imshow("Face Recognition", frame)
 
-		if cv2.waitKey(1) & 0xFF == ord('q'):
+		key = cv2.waitKey(1)
+		if key & 0xFF == ord('q'):
 			break
+		elif key & 0xFF == ord('x'):
+			print(predictions)
 
 	cap.release()
 	cv2.destroyAllWindows()
@@ -94,7 +101,7 @@ def parse_opt():
 	parser = argparse.ArgumentParser()
 	parser.add_argument('--source', '-s', type=str, default='camera',help='camera or image')
 	parser.add_argument('--path', '-p', type=str, default=None, help='path to the image')
-	parser.add_argument('--save', '-sv', type=bool, default=False, help='save image - true/false')
+	parser.add_argument('--save', '-sv', type=bool, default=False, help='save image - True/False')
 	opt = parser.parse_args()
 	return opt
 

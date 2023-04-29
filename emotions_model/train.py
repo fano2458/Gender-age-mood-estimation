@@ -52,23 +52,12 @@ model = EmotionsModel().to(device)
 optimizer = torch.optim.Adam(model.parameters(), lr=0.0005)
 criterion = nn.CrossEntropyLoss()
 
-# model.eval()
-
-# print(next(iter(trn_dl))[0].shape)
-
-# predictions = model(next(iter(trn_dl))[0])
-# print(predictions.shape)
 
 torch.save(model.state_dict(), 'model.pt')
 def train_batch(x, y, model, loss, optim):
 	model.train(),
 	prediction = model(x)
-	#prediction = (torch.argmax(prediction, dim=1).float())
-	#prediction = prediction.unsqueeze(1)
-	#loss_value = loss(torch.argmax(prediction, dim=1).unsqueeze(1).float(), y.float())
-	#print(prediction.shape)
 	y = torch.squeeze(y)
-	#print(y.shape)
 	loss_value = loss(prediction, y)
 	loss_value.backward()
 	optim.step()
@@ -79,7 +68,6 @@ def train_batch(x, y, model, loss, optim):
 def accuracy(x, y, model):
 	model.eval()
 	prediction = model(x)
-	#is_correct = (prediction>0.5) == y
 	is_correct = torch.argmax(prediction) == y
 	return is_correct.cpu().numpy().tolist()
 

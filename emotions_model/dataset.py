@@ -20,9 +20,6 @@ folder = r'data/train/'
 class Emotions(Dataset):
 	def __init__(self, folder):
 		angry = [os.path.normpath(i) for i in glob(folder+'angry/*.jpg')]
-		#"C:\Users\fano\Desktop\face_emotion\dataset\test\angry\PrivateTest_88305.jpg"
-		#print(os.path.normpath(folder+'angry/PrivateTest_88305.jpg'))
-		#img = Image.open(os.path.normpath(folder+'angry/PrivateTest_88305.jpg'))
 		disgust = [os.path.normpath(i) for i in glob(folder+'disgust/*.jpg')]
 		fear = [os.path.normpath(i) for i in glob(folder+'fear/*.jpg')]
 		happy = [os.path.normpath(i) for i in glob(folder+'happy/*.jpg')]
