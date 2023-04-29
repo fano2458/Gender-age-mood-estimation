@@ -1,3 +1,5 @@
+# Example usage:
+
 import numpy as np
 from facenet_pytorch import MTCNN
 import cv2
@@ -18,8 +20,8 @@ def transform(im,device):
 def inference(frame,mtcnn,model,model_em,Genders,Moods):
 	model.eval()
 	model_em.eval()
-	frame=cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
-	frame_BGR=frame.copy()
+	frame = cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
+	frame_BGR = frame.copy()
 	boxes, probs = mtcnn.detect(frame, landmarks=False)
 	
 	if (probs.all() != None and probs.all() > 0.8):
@@ -27,7 +29,7 @@ def inference(frame,mtcnn,model,model_em,Genders,Moods):
 			x1,x2,y1,y2 = int(x1),int(x2),int(y1),int(y2)
 			face = frame_BGR[y1:y2,x1:x2]
 			face_cp = face
-			if face.shape[0]==0 or face.shape[1]==0:
+			if face.shape[0] == 0 or face.shape[1] == 0:
 				continue
 			face = np.transpose(cv2.resize(face, (128,128)), (2,0,1))
 			face = np.expand_dims(face, 0).astype(np.float32)/255.
@@ -78,7 +80,7 @@ def camera_inference(device,mtcnn,model,model_em,Genders,Moods,opt):
 			fps = ""
 		prev_frame_time = next_frame_time
 
-		cv2.putText(frame, fps, (7,70), cv2.FONT_HERSHEY_SIMPLEX, 1, (100, 255, 0), 1, cv2.LINE_AA)
+		cv2.putText(frame, fps, (7,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (100, 255, 0), 1, cv2.LINE_AA)
 		cv2.imshow("Face Recognition", frame)
 
 		if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -100,8 +102,9 @@ def parse_opt():
 if __name__ == '__main__':
 
 	device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
+	print("Initializing models ...")
 	mtcnn = MTCNN(image_size=160, margin=14, min_face_size=40,device=device, post_process=False)
+	print("Loading weights ...")
 	model = torch.load('weights/best.pt').to(device)
 	model_em = EmotionsModel().to(device)
 	model_em.load_state_dict(torch.load('weights/model66.pt'))
@@ -111,6 +114,10 @@ if __name__ == '__main__':
 
 	opt = parse_opt()
 	if vars(opt)['source'] == 'camera':
+		print("Starting camera ...")
+		print('Press "Q" to quit')
 		camera_inference(device,mtcnn,model,model_em,Genders,Moods,opt)
 	else:
+		print("Making prediction on photo ...")
 		photo_inference(device,mtcnn,model,model_em,Genders,Moods,opt,vars(opt)['save'])
+	print("Done!")
