@@ -61,12 +61,12 @@ def photo_inference(device,mtcnn,model,model_em,Genders,Moods,opt,save):
 			break
 
 
-def camera_inference(device,mtcnn,model,model_em,Genders,Moods,opt):
+def camera_inference(device,mtcnn,model,model_em,Genders,Moods,opt,source=0):
 
 	prev_frame_time = 0
 	next_frame_time = 0
 
-	cap = cv2.VideoCapture(0) 
+	cap = cv2.VideoCapture(source) 
 	cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 	cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
 
@@ -99,7 +99,7 @@ def camera_inference(device,mtcnn,model,model_em,Genders,Moods,opt):
 
 def parse_opt():
 	parser = argparse.ArgumentParser()
-	parser.add_argument('--source', '-s', type=str, default='camera',help='camera or image')
+	parser.add_argument('--source', '-s', type=str, default='camera',help='camera|image|video')
 	parser.add_argument('--path', '-p', type=str, default=None, help='path to the image')
 	parser.add_argument('--save', '-sv', type=bool, default=False, help='save image - True/False')
 	opt = parser.parse_args()
@@ -112,9 +112,9 @@ if __name__ == '__main__':
 	print("Initializing models ...")
 	mtcnn = MTCNN(image_size=160, margin=14, min_face_size=40,device=device, post_process=False)
 	print("Loading weights ...")
-	model = torch.load('weights/best.pt').to(device)
+	model = torch.load('weights/best.pt',map_location=torch.device('cpu')).to(device)
 	model_em = EmotionsModel().to(device)
-	model_em.load_state_dict(torch.load('weights/model66.pt'))
+	model_em.load_state_dict(torch.load('weights/model66.pt',map_location=torch.device('cpu')))
 
 	Genders = {0: 'male', 1: 'female'}
 	Moods = {0: 'angry', 1: 'disgust', 2: 'fear', 3: 'happy', 4: 'sad', 5: 'neutral', 6: 'surprise'}
@@ -123,7 +123,10 @@ if __name__ == '__main__':
 	if vars(opt)['source'] == 'camera':
 		print("Starting camera ...")
 		print('Press "Q" to quit')
-		camera_inference(device,mtcnn,model,model_em,Genders,Moods,opt)
+		camera_inference(device,mtcnn,model,model_em,Genders,Moods,opt,0)
+	elif vars(opt)['source'] == 'video' and vars(opt)['path'] != None:
+		print("Predictions on video")
+		camera_inference(device,mtcnn,model,model_em,Genders,Moods,opt,vars(opt)['path'])
 	else:
 		print("Making prediction on photo ...")
 		photo_inference(device,mtcnn,model,model_em,Genders,Moods,opt,vars(opt)['save'])
