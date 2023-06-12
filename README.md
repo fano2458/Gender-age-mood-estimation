@@ -13,7 +13,7 @@ In order to save the predictions you can use "--save" argument. Save argument is
 
 To run inference on webcam:
 ```
-python inference.py --source 0
+python inference.py
 ```
 
 Sample test image          |  Sample image with predictions
