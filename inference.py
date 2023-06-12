@@ -112,9 +112,9 @@ if __name__ == '__main__':
 	print("Initializing models ...")
 	mtcnn = MTCNN(image_size=160, margin=14, min_face_size=40,device=device, post_process=False)
 	print("Loading weights ...")
-	model = torch.load('weights/best.pt',map_location=torch.device('cpu')).to(device)
+	model = torch.load('weights/best.pt',map_location=torch.device(device)).to(device)
 	model_em = EmotionsModel().to(device)
-	model_em.load_state_dict(torch.load('weights/model66.pt',map_location=torch.device('cpu')))
+	model_em.load_state_dict(torch.load('weights/model66.pt',map_location=torch.device(device)))
 
 	Genders = {0: 'male', 1: 'female'}
 	Moods = {0: 'angry', 1: 'disgust', 2: 'fear', 3: 'happy', 4: 'sad', 5: 'neutral', 6: 'surprise'}
