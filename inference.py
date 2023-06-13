@@ -8,7 +8,6 @@ import cv2
 import time
 import torch
 import argparse
-from model import GenderAge
 from emotions_model.model import EmotionsModel
 
 
@@ -44,13 +43,11 @@ def inference(frame,mtcnn,model,model_em,Genders,Moods):
 			cv2.rectangle(frame,(x1,y1),(x2,y2),(0,255,150),1)
 			cv2.putText(frame, 'Gender: {}, Age: {}, Mood: {}'.format(['Male', 'Female'][gender], age, Moods[emotion]), (x1,y1-10), cv2.FONT_HERSHEY_COMPLEX, 0.5, (0, 255, 150))
 	frame = cv2.cvtColor(frame,cv2.COLOR_RGB2BGR)
-	#print(preds)
 	return frame, preds
 
 
-def photo_inference(device,mtcnn,model,model_em,Genders,Moods,opt,save):
-	im_path = vars(opt)['path']
-	image = cv2.imread(im_path)
+def photo_inference(device,mtcnn,model,model_em,Genders,Moods,opt,save,path):
+	image = cv2.imread(path)
 	
 	image, _ = inference(image,mtcnn,model,model_em,Genders,Moods)
 	if save:
@@ -129,5 +126,5 @@ if __name__ == '__main__':
 		camera_inference(device,mtcnn,model,model_em,Genders,Moods,opt,vars(opt)['path'])
 	else:
 		print("Making prediction on photo ...")
-		photo_inference(device,mtcnn,model,model_em,Genders,Moods,opt,vars(opt)['save'])
+		photo_inference(device,mtcnn,model,model_em,Genders,Moods,opt,vars(opt)['save'],vars(opt)['path'])
 	print("Done!")
